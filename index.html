@@ -107,6 +107,7 @@ body { font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; backgrou
       <div class="btns">
         <button class="btn" onclick="openTwist()">TWIST Calc</button>
         <button class="btn" onclick="copyAssess()">Copy</button>
+        <button class="btn" onclick="resetAssess()">Reset</button>
       </div>
     </div>
     <div class="assess-area" id="assessArea" contenteditable="true"></div>
@@ -118,7 +119,7 @@ body { font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; backgrou
   <div class="col col-3">
     <div class="col-header" id="tmplHeader">
       <span>4. Template</span>
-      <div class="btns"><button class="btn" onclick="copyTemplate()">Copy All</button></div>
+      <div class="btns"><button class="btn" onclick="copyTemplate()">Copy All</button><button class="btn" onclick="resetTemplate()">Reset</button></div>
     </div>
     <div class="template-area" id="templateArea" contenteditable="true">
       <span class="placeholder">Select a diagnosis, then a management pathway.</span>
@@ -225,6 +226,14 @@ function copyAssess(){
   navigator.clipboard.writeText(t).then(()=>showToast("Assessment copied!"));
 }
 
+function resetTemplate(){renderTemplate();}
+
+function resetAssess(){
+  if(currentAssessment){
+    document.getElementById("assessArea").textContent=currentAssessment.template.replace("{twist_score}","0");
+  }
+}
+
 function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1500);}
 
 function openTwist(){twistValues=[0,0,0,0,0];document.querySelectorAll('#twistItems input[value="0"]').forEach(r=>r.checked=true);calcTwistDisplay();document.getElementById("twistModal").classList.add("show");}
@@ -264,11 +273,11 @@ initApp([{"category": "Ureteral / Renal Stone", "keywords": ["stone", "ureteral"
 <ul>
 <li><strong>直接編輯</strong>文字內容</li>
 <li>點 <strong>Copy All</strong> 一鍵複製</li>
-<li>切換路徑會自動回復原始範本</li>
+<li>點 <strong>Reset</strong> 可回復原始範本</li>
 </ul>
 
 <h3>特殊功能：TWIST Score 計算器</h3>
-<p>選擇「Testicular Torsion / Pain」→ 點選「Assessment (PE / Lab / Echo / TWIST)」→ 點 <strong>TWIST Calc</strong> 按鈕，互動勾選計算分數。</p>
+<p>選擇「Testicular Torsion / Pain」→ 點選「Assessment (PE / Lab / Echo / TWIST)」→ 點 <strong>TWIST Calc</strong> 按鈕，互動勾選計算分數。Assessment 區域可直接編輯，點 <strong>Copy</strong> 複製、<strong>Reset</strong> 回復原始範本。</p>
 
 <h3>特殊功能：Assessment 欄位</h3>
 <p>在 Testicular Torsion 診斷下，會多出第 4 欄「Assessment」，顯示 PE / Lab / Echo 範本，可獨立複製。</p>
