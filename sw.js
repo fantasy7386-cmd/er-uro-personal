@@ -1,5 +1,5 @@
 
-const CACHE='er-uro-v20260509-221450';
+const CACHE='er-uro-v20260509-222123';
 const ASSETS=['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{
   e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));

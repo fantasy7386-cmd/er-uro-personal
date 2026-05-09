@@ -7,19 +7,25 @@
 <meta name="theme-color" content="#0071e3">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
+<script>(function(){try{var t=localStorage.getItem("eruro_theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-:root {
+:root, :root[data-theme="light"] {
   --bg:#f5f5f7; --bg-card:#fff; --text:#1d1d1f; --text-muted:#86868b;
   --border:#d2d2d7; --border-soft:#e5e5ea; --accent:#0071e3; --accent-hover:#005bb5;
   --hover-bg:#f0f0f5; --header-bg:#fafafa;
 }
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg:#1c1c1e; --bg-card:#2c2c2e; --text:#f5f5f7; --text-muted:#8e8e93;
     --border:#3a3a3c; --border-soft:#38383a; --accent:#0a84ff; --accent-hover:#409cff;
     --hover-bg:#3a3a3c; --header-bg:#1c1c1e;
   }
+}
+:root[data-theme="dark"] {
+  --bg:#1c1c1e; --bg-card:#2c2c2e; --text:#f5f5f7; --text-muted:#8e8e93;
+  --border:#3a3a3c; --border-soft:#38383a; --accent:#0a84ff; --accent-hover:#409cff;
+  --hover-bg:#3a3a3c; --header-bg:#1c1c1e;
 }
 body { font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); height:100vh; display:flex; flex-direction:column; }
 .top-bar { background:var(--bg-card); border-bottom:1px solid var(--border); padding:12px 20px; flex-shrink:0; }
@@ -77,7 +83,7 @@ body { font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; backgrou
 .modal-btn { font-size:14px; padding:8px 24px; border:none; border-radius:8px; cursor:pointer; font-weight:600; }
 .modal-btn.primary { background:var(--accent); color:#fff; }
 .modal-btn.secondary { background:var(--border-soft); color:var(--text); }
-.toast { position:fixed; bottom:20px; right:20px; background:#1d1d1f; color:#fff; padding:10px 20px; border-radius:8px; font-size:13px; opacity:0; transition:opacity .3s; z-index:200; }
+.toast { position:fixed; bottom:20px; right:20px; background:var(--text); color:var(--bg); padding:10px 20px; border-radius:8px; font-size:13px; opacity:0; transition:opacity .3s; z-index:200; box-shadow:0 4px 12px rgba(0,0,0,0.2); }
 .toast.show { opacity:1; }
 .login-screen { display:flex; justify-content:center; align-items:center; height:100vh; background:var(--bg); }
 .login-box { background:var(--bg-card); border-radius:12px; padding:40px; width:380px; box-shadow:0 4px 20px rgba(0,0,0,0.1); text-align:center; }
@@ -132,6 +138,7 @@ body { font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; backgrou
     </div>
     <div style="display:flex;gap:6px;margin-top:4px;">
       <button onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSd5EDJWg4m2td7gLAa4m43oYjmaI3FO4rvp6NrZCdfBJAZwbA/viewform','_blank')" style="background:var(--bg-card);color:var(--accent);border:1px solid var(--accent);border-radius:14px;padding:4px 12px;font-size:11px;font-weight:600;cursor:pointer;">Feedback</button>
+      <button id="themeBtn" onclick="cycleTheme()" title="Theme: auto" style="background:var(--bg-card);color:var(--accent);border:1px solid var(--accent);border-radius:50%;width:28px;height:28px;font-size:13px;font-weight:700;cursor:pointer;line-height:1;">A</button>
       <button onclick="document.getElementById('helpModal').classList.add('show')" title="Help (?)" style="background:var(--accent);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:15px;font-weight:700;cursor:pointer;">?</button>
     </div>
   </div>
@@ -226,6 +233,9 @@ body { font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; backgrou
     <h3>「最近使用」自動置頂</h3>
     <p>常用的診斷類別會自動排在前面（依使用次數），<strong>有 ★ 號代表使用 ≥3 次</strong>。資料只存在你自己的瀏覽器，不會上傳。</p>
 
+    <h3>淺色 / 深色模式</h3>
+    <p>右上 <span class="kbd">A / ☀ / ☾</span> 按鈕循環切換主題：<strong>A</strong> 跟隨系統 → <strong>☀</strong> 強制淺色 → <strong>☾</strong> 強制深色。設定會記在這個瀏覽器裡。</p>
+
     <h3>列印</h3>
     <p>瀏覽器 <span class="kbd">⌘/Ctrl + P</span> 可只列印目前 Template 內容（自動隱藏其他欄位）。</p>
 
@@ -233,7 +243,6 @@ body { font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; backgrou
     <ul>
       <li>可輸入多個關鍵字（如 "stone infection"），會以 AND 條件篩選</li>
       <li>所有範本皆源自真實照會紀錄，非 AI 生成內容</li>
-      <li>支援深色模式（跟隨系統設定）</li>
     </ul>
     <button class="help-close" onclick="document.getElementById('helpModal').classList.remove('show')">Got it</button>
   </div>
@@ -249,6 +258,12 @@ const TWIST_ITEMS=[{name:"Testicular swelling",points:2},{name:"Hard testicle",p
 let twistValues=[0,0,0,0,0];
 const KEYWORDS=["stone","hematuria","UTI","urosepsis","torsion","epididymitis","retention","foley","hydrocele","trauma","bladder cancer","hernia","nephrostomy","fistula","transplant","prostatitis","balanitis","varicocele","post-op"];
 const USAGE_KEY="eruro_usage_v1";
+const THEME_KEY="eruro_theme";
+
+function getTheme(){try{return localStorage.getItem(THEME_KEY)||"auto";}catch(e){return "auto";}}
+function applyTheme(t){if(t==="auto"){document.documentElement.removeAttribute("data-theme");}else{document.documentElement.setAttribute("data-theme",t);}}
+function cycleTheme(){const cur=getTheme();const next=cur==="auto"?"light":cur==="light"?"dark":"auto";try{localStorage.setItem(THEME_KEY,next);}catch(e){}applyTheme(next);updateThemeBtn();}
+function updateThemeBtn(){const btn=document.getElementById("themeBtn");if(!btn)return;const t=getTheme();btn.textContent=t==="dark"?"☾":t==="light"?"☀":"A";btn.title="Theme: "+t+" (click: auto → light → dark)";}
 
 function loadUsage(){try{return JSON.parse(localStorage.getItem(USAGE_KEY))||{};}catch(e){return{};}}
 function logUse(catName){try{const log=loadUsage();log[catName]=(log[catName]||0)+1;localStorage.setItem(USAGE_KEY,JSON.stringify(log));}catch(e){}}
@@ -277,6 +292,7 @@ function initApp(data){
   });
   document.getElementById("searchInput").addEventListener("input",onSearch);
   installKeyboardShortcuts();
+  applyTheme(getTheme()); updateThemeBtn();
   renderDiags(); updateCount();
 }
 
